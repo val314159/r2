@@ -14,20 +14,25 @@
      (let ((___3 ,c))
        ,@r
        ___3)))
-	 
-(defun cli ()
-  (format *file* ">>> Hi!~%")
+
+(defun repl (&aux x)
   (loop
     (handler-case
 	(format *file* ">>> ~a~%"
-		(prog3
+		(progn
 		  (format *file* *PS1*)
 		  (finish-output *file*)
-		  (eval (read))
+		  (setf x (eval (read)))
 		  (fresh-line)
-		  (finish-output)))
-      (end-of-file (c)
-	(format *file* "(uiop:quit)~%>>> Bye~%")
-	(return-from cli c))
+		  (finish-output)
+		  x))
+      (end-of-file ()
+	(return-from repl x))
       (t (c)
 	(format t "Condition:[~s] ~a" c c)))))
+
+(defun cli ()
+  (format *file* ">>> Hi!~%")
+  (repl)
+  (format *file* "(quit)~%>>> Bye!~%")
+  )
